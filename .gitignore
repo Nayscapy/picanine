@@ -1,11 +1,4 @@
-# ข้ามโฟลเดอร์แพ็กเกจ PHPMailer / Composer
-/vendor/
-
-# ข้ามรูปถ่ายทดสอบในระบบ (ไม่ให้อัปรูปส่วนตัวขึ้น Git)
-/uploads/*
-!.gitkeep
-
-# ข้ามไฟล์บันทึกประวัติ / คอนฟิกชั่วคราว
+uploads/*
+!uploads/.gitkeep
 *.log
-.env
-.vscode/
+.DS_Store
