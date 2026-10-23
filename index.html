@@ -1,0 +1,1204 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Picanine - Handwritten Numer Engine with Intensity Slider</title>
+  <!-- Google Fonts & Font Awesome Icons -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@300;400;500;600&family=Fira+Code:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    @font-face {
+      font-family: 'Stars';
+      src: url('Stars-Regular.ttf') format('truetype');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    :root {
+      --bg-color: #F8FAFC;
+      --card-bg: #FFFFFF;
+      --surface-muted: #F1F5F9;
+      --border-color: #E2E8F0;
+      --text-main: #0F172A;
+      --text-soft: #334155;
+      --text-muted: #64748B;
+      --blue: #2563EB;
+      --blue-hover: #1D4ED8;
+      --yellow: #FACC15;
+      --amber: #F59E0B;
+      --yellow-50: #FEFCE8;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --shadow-blue: 0 8px 20px -8px rgba(37, 99, 235, 0.55);
+      --shadow-yellow: 0 8px 20px -8px rgba(245, 158, 11, 0.75);
+      --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'IBM Plex Sans Thai', system-ui, sans-serif;
+      font-size: 16px;
+      line-height: 1.55;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      isolation: isolate;
+    }
+
+    button, input, a { font: inherit; color: inherit; }
+
+    header {
+      background-color: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(20px);
+      padding: 0.875rem max(1.5rem, calc((100% - 1280px) / 2 + 1.5rem));
+      border-bottom: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    header h1 {
+      font-family: 'Stars', 'IBM Plex Sans Thai', system-ui, sans-serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      color: var(--blue-hover);
+      -webkit-text-stroke: 0.5px var(--blue-hover);
+      letter-spacing: 0.04em;
+      line-height: 1;
+      white-space: nowrap;
+      min-width: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    header h1 img {
+      height: 40px;
+      width: auto;
+      max-width: 56px;
+      object-fit: contain;
+      flex-shrink: 0;
+      display: block;
+    }
+
+    header h1 span {
+      text-transform: none;
+      padding-top: 0.1em;
+    }
+
+    header h1 i {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      font-size: 0.95rem;
+      color: #fff;
+      background: var(--blue);
+      border-radius: 10px;
+      box-shadow: var(--shadow-blue);
+    }
+
+    .header-nav {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .btn-nav {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      text-decoration: none;
+      background: var(--surface-muted);
+      border: 1px solid var(--border-color);
+      color: var(--text-soft);
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-nav:hover {
+      background: var(--blue);
+      color: #fff;
+      border-color: var(--blue);
+    }
+
+    .btn-nav.logout {
+      background: #FEE2E2;
+      color: #991B1B;
+      border-color: #FCA5A5;
+    }
+
+    .btn-nav.logout:hover {
+      background: #DC2626;
+      color: #fff;
+      border-color: #DC2626;
+    }
+
+    .badge-numer {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--yellow);
+      color: var(--text-main);
+      font-size: 0.75rem;
+      font-weight: 600;
+      line-height: 1;
+      white-space: nowrap;
+      flex-shrink: 0;
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      box-shadow: 0 6px 16px -8px rgba(245, 158, 11, 0.8);
+    }
+
+    @media (max-width: 680px) {
+      header { padding: 0.625rem 1rem; }
+      header h1 { font-size: 1.25rem; gap: 0.5rem; }
+      header h1 img { height: 34px; }
+      .btn-nav span { display: none; }
+      .btn-nav { padding: 0.45rem 0.6rem; }
+    }
+
+    .container {
+      width: 100%;
+      max-width: 1280px;
+      margin: 2rem auto 3rem;
+      padding: 0 1.5rem;
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+      flex: 1;
+      align-items: start;
+    }
+
+    @media (min-width: 992px) {
+      .container { grid-template-columns: 1.2fr 0.8fr; gap: 2.5rem; }
+    }
+
+    .card {
+      background-color: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border-radius: var(--radius-lg);
+      padding: 1.75rem;
+      border: 1px solid rgba(255, 255, 255, 0.9);
+      box-shadow: 0 12px 40px -12px rgba(37, 99, 235, 0.15);
+      display: flex;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+
+    .card-title {
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+      padding-bottom: 1rem;
+      position: relative;
+    }
+
+    .card-title::after {
+      content: '';
+      position: absolute;
+      left: 0; bottom: -1px;
+      width: 56px; height: 3px;
+      border-radius: 3px;
+      background: var(--yellow);
+    }
+
+    .fps-pill {
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem;
+      color: var(--text-soft);
+      background: var(--surface-muted);
+      border: 1px solid var(--border-color);
+      padding: 0.2rem 0.6rem;
+      border-radius: 999px;
+    }
+
+    .camera-wrapper {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4 / 3;
+      background-color: #0F172A;
+      border-radius: var(--radius-lg);
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    #hiddenVideo {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #previewCanvas { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    .flash-overlay {
+      position: absolute; inset: 0;
+      background-color: white; opacity: 0;
+      pointer-events: none; transition: opacity 0.15s ease-out; z-index: 20;
+    }
+    .flash-active { opacity: 1; }
+
+    .countdown-overlay {
+      position: absolute; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background-color: rgba(15, 23, 42, 0.35);
+      font-size: 5rem; font-weight: 600; color: white;
+      z-index: 10; opacity: 0; pointer-events: none; transition: opacity 0.2s ease;
+    }
+    .countdown-active { opacity: 1; }
+
+    .captured-thumbs {
+      display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; width: 100%;
+    }
+
+    .captured-thumbs.four { grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+    .thumb-slot[hidden] { display: none; }
+
+    .btn-grid.two { grid-template-columns: repeat(2, 1fr); }
+
+    .thumb-slot {
+      aspect-ratio: 4 / 3;
+      background-color: rgba(255, 255, 255, 0.5);
+      border: 1.5px dashed rgba(37, 99, 235, 0.35);
+      border-radius: var(--radius-md);
+      overflow: hidden; display: flex; align-items: center; justify-content: center;
+      color: var(--text-muted); font-size: 0.8125rem;
+    }
+
+    .thumb-slot img { width: 100%; height: 100%; object-fit: cover; }
+
+    .controls-group { display: flex; flex-direction: column; gap: 0.75rem; }
+    .control-label { font-size: 0.875rem; font-weight: 500; color: var(--text-soft); }
+
+    .btn-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 0.5rem;
+    }
+
+    .btn-option {
+      background-color: #fff;
+      border: 1px solid var(--border-color);
+      color: var(--text-soft);
+      padding: 0.65rem 0.5rem;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.8125rem;
+      text-align: center;
+      transition: all 0.2s var(--ease);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.35rem;
+    }
+
+    .btn-option:hover { border-color: var(--yellow); background-color: var(--yellow-50); }
+    .btn-option.active {
+      background-color: var(--blue);
+      border-color: var(--blue);
+      color: #fff;
+      font-weight: 500;
+      box-shadow: var(--shadow-blue);
+    }
+
+    .slider-wrapper {
+      display: flex; flex-direction: column; gap: 0.75rem;
+      background-color: #fff; padding: 1rem; border-radius: var(--radius-md);
+      border: 1px solid var(--border-color);
+    }
+
+    .slider-head {
+      display: flex; justify-content: space-between; align-items: center;
+      font-size: 0.8125rem; color: var(--text-soft);
+    }
+
+    .slider-val {
+      font-family: 'Fira Code', monospace; font-weight: 600;
+      background: var(--yellow); padding: 0.1rem 0.6rem; border-radius: 999px;
+    }
+
+    input[type=range] { width: 100%; accent-color: var(--blue); cursor: pointer; }
+
+    .numer-inspector {
+      background-color: #172554;
+      border-radius: var(--radius-md);
+      padding: 1rem;
+      font-family: 'Fira Code', monospace;
+      font-size: 0.75rem; color: #CBD5E1;
+      display: flex; flex-direction: column; gap: 0.5rem;
+    }
+
+    .numer-inspector-title {
+      font-family: 'IBM Plex Sans Thai', sans-serif;
+      font-weight: 500; color: #fff;
+      display: flex; justify-content: space-between;
+    }
+
+    .matrix-display {
+      background: rgba(255, 255, 255, 0.05);
+      padding: 0.75rem; border-radius: 6px;
+      color: var(--yellow); white-space: pre-wrap;
+    }
+
+    .btn-shoot {
+      background: var(--yellow);
+      color: var(--text-main);
+      border: none; padding: 1rem;
+      border-radius: var(--radius-md);
+      font-size: 1rem; font-weight: 600;
+      cursor: pointer; display: flex; align-items: center; justify-content: center;
+      gap: 0.6rem; box-shadow: var(--shadow-yellow);
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-shoot:hover { background: var(--amber); transform: translateY(-1px); }
+    .btn-shoot:disabled { background: var(--border-color); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
+
+    .result-container { align-items: center; }
+    .strip-preview {
+      max-width: 260px; width: 100%;
+      background-color: #fff; border-radius: var(--radius-md);
+      overflow: hidden; border: 1px solid var(--border-color);
+      box-shadow: 0 20px 40px -20px rgba(15, 23, 42, 0.2);
+    }
+
+    #outputCanvas { width: 100%; height: auto; display: block; aspect-ratio: 600 / 1800; }
+
+    .action-btn-group {
+      display: flex;
+      flex-direction: column;
+      gap: 0.6rem;
+      width: 100%;
+      max-width: 260px;
+    }
+
+    .btn-download {
+      background-color: var(--blue); color: white;
+      border: none; padding: 0.8rem; border-radius: 10px;
+      font-size: 0.9375rem; font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      width: 100%; box-shadow: var(--shadow-blue);
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-download:hover { background-color: var(--blue-hover); }
+    .btn-download:disabled { background-color: var(--border-color); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
+
+    .btn-save-db {
+      background-color: #10B981; color: white;
+      border: none; padding: 0.8rem; border-radius: 10px;
+      font-size: 0.9375rem; font-weight: 500; cursor: pointer;
+      display: flex; align-items: center; justify-content: center; gap: 0.5rem;
+      width: 100%; box-shadow: 0 8px 20px -8px rgba(16, 185, 129, 0.55);
+      transition: all 0.2s var(--ease);
+    }
+
+    .btn-save-db:hover { background-color: #059669; }
+    .btn-save-db:disabled { background-color: var(--border-color); color: var(--text-muted); box-shadow: none; cursor: not-allowed; }
+
+    /* Background Orbs */
+    .bg-orbs {
+      position: fixed; inset: 0; z-index: -1; overflow: hidden; pointer-events: none; background: #F8FAFC;
+    }
+    .bg-orbs span {
+      position: absolute; width: 55vmax; height: 55vmax; border-radius: 50%; filter: blur(90px); animation: orbDrift 16s ease-in-out infinite;
+    }
+    .bg-orbs .orb-blue-1   { top: -18vmax; left: -14vmax; background: #2563EB; opacity: 0.42; }
+    .bg-orbs .orb-yellow-1 { top: -12vmax; right: -16vmax; background: #FACC15; opacity: 0.55; animation-delay: -4s; animation-duration: 19s; }
+    .bg-orbs .orb-yellow-2 { bottom: -22vmax; left: 8vw; background: #FACC15; opacity: 0.42; animation-delay: -8s; animation-duration: 22s; }
+    .bg-orbs .orb-blue-2   { bottom: -20vmax; right: -12vmax; background: #1D4ED8; opacity: 0.34; animation-delay: -2s; animation-duration: 18s; }
+
+    @keyframes orbDrift {
+      0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+      50%      { transform: translate3d(4vmax, 3vmax, 0) scale(1.08); }
+    }
+
+    body.entered .bg-orbs span { animation-play-state: paused; }
+
+    /* Landing Page */
+    body.landing-open { overflow: hidden; }
+    body.landing-open header, body.landing-open .container { visibility: hidden; }
+
+    .landing {
+      position: fixed; inset: 0; z-index: 1000; display: grid; place-items: center; padding: 1.5rem; overflow-y: auto;
+      background: linear-gradient(135deg, rgba(248, 250, 252, 0.45), rgba(255, 255, 255, 0.2));
+      -webkit-backdrop-filter: blur(30px) saturate(160%); backdrop-filter: blur(30px) saturate(160%);
+      transition: opacity 0.6s var(--ease), transform 0.6s var(--ease), visibility 0.6s;
+    }
+    .landing[hidden] { display: none; }
+    .landing.leaving { opacity: 0; transform: scale(1.04); visibility: hidden; pointer-events: none; }
+
+    .landing-card {
+      width: 100%; max-width: 640px; text-align: center; padding: 0.5rem 1rem; display: flex; flex-direction: column; align-items: center; gap: clamp(0.75rem, 2.4vh, 1.5rem); animation: landingRise 0.8s var(--ease) both;
+    }
+    @keyframes landingRise {
+      from { opacity: 0; transform: translateY(18px); }
+      to   { opacity: 1; transform: none; }
+    }
+    .landing-logo img { height: clamp(84px, min(22vw, 17vh), 140px); width: auto; max-width: 70vw; object-fit: contain; display: block; margin-bottom: -0.5rem; }
+    .landing-logo i { display: none; }
+    .landing-logo.no-img img { display: none; }
+    .landing-logo.no-img i {
+      width: clamp(88px, 20vw, 120px); height: clamp(88px, 20vw, 120px); display: grid; place-items: center; font-size: clamp(2.25rem, 8vw, 3.25rem); color: #fff; background: var(--blue); border-radius: 18px; box-shadow: var(--shadow-blue);
+    }
+    .landing-title {
+      font-family: 'Stars', 'IBM Plex Sans Thai', system-ui, sans-serif; font-size: clamp(2.25rem, min(9vw, 9vh), 4rem); font-weight: 400; letter-spacing: 0.02em; line-height: 1.05; color: var(--blue-hover); -webkit-text-stroke: 0.6px var(--blue-hover); text-shadow: 0 2px 16px rgba(255, 255, 255, 0.85);
+    }
+    .landing-sub { max-width: 46ch; font-size: clamp(0.9375rem, 2.3vh, 1.0625rem); line-height: 1.6; color: var(--text-soft); }
+    .landing-chips { display: flex; flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+    .landing-chips span { display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.4rem 0.85rem; border-radius: 999px; font-size: 0.8125rem; color: var(--text-soft); background: rgba(255, 255, 255, 0.7); border: 1px solid rgba(255, 255, 255, 0.9); box-shadow: 0 0 0 1px rgba(15, 23, 42, 0.06); }
+    .landing-chips i { color: var(--blue); }
+
+    .btn-enter {
+      margin-top: 0.25rem; background: var(--yellow); color: var(--text-main); border: none; padding: clamp(0.75rem, 2vh, 1rem) 2.25rem; border-radius: var(--radius-md); font-size: 1.0625rem; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 0.75rem; box-shadow: var(--shadow-yellow); transition: background-color 0.2s var(--ease), transform 0.15s var(--ease), box-shadow 0.2s var(--ease);
+    }
+    .btn-enter:hover { background: var(--amber); transform: translateY(-2px); }
+
+    /* Fallback Save Overlay */
+    .save-overlay {
+      position: fixed; inset: 0; z-index: 2000; display: grid; place-items: center; padding: 1rem; background: rgba(15, 23, 42, 0.55); -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
+    }
+    .save-sheet {
+      width: 100%; max-width: 340px; max-height: 100%; overflow-y: auto; display: flex; flex-direction: column; align-items: center; gap: 0.875rem; padding: 1.25rem; border-radius: 20px; background: rgba(255, 255, 255, 0.92); text-align: center; font-size: 0.9375rem; color: var(--text-main);
+    }
+    .save-sheet img { width: 100%; max-width: 220px; height: auto; border-radius: 10px; box-shadow: 0 10px 30px -12px rgba(15, 23, 42, 0.4); }
+  </style>
+</head>
+
+<body class="landing-open">
+
+  <div class="bg-orbs" aria-hidden="true">
+    <span class="orb-blue-1"></span>
+    <span class="orb-yellow-1"></span>
+    <span class="orb-yellow-2"></span>
+    <span class="orb-blue-2"></span>
+  </div>
+
+  <section id="landing" class="landing" role="dialog" aria-labelledby="landingTitle">
+    <div class="landing-card">
+      <div class="landing-logo">
+        <img src="your-logo.png" alt="Picanine logo" onerror="this.parentElement.classList.add('no-img')">
+        <i class="fa-solid fa-camera-retro"></i>
+      </div>
+
+      <span class="badge-numer"><i class="fa-solid fa-square-root-variable"></i><span class="badge-text">Handwritten Numer Engine</span></span>
+
+      <h2 id="landingTitle" class="landing-title"><span>Picanine</span></h2>
+
+      <p class="landing-sub"><span>โฟโต้บูทออนไลน์ ถ่ายอัตโนมัติ 3 หรือ 4 ช็อต</span> <span>เลือกกรอบและฟิลเตอร์ แล้วบันทึกลงระบบได้ทันที</span></p>
+
+      <div class="landing-chips">
+        <span><i class="fa-solid fa-camera"></i> ถ่ายอัตโนมัติ 3–4 ช็อต</span>
+        <span><i class="fa-solid fa-wand-magic-sparkles"></i> ฟิลเตอร์เรียลไทม์</span>
+        <span><i class="fa-solid fa-border-all"></i> กรอบ 6 แบบ</span>
+      </div>
+
+      <button id="enterBtn" class="btn-enter" onclick="enterSite()">
+        เข้าสู่เว็บไซต์ <i class="fa-solid fa-arrow-right"></i>
+      </button>
+
+      <p class="landing-note" style="font-size: 0.8125rem; color: var(--text-soft);">เบราว์เซอร์จะขออนุญาตใช้กล้องหลังจากกดเข้าสู่เว็บไซต์</p>
+    </div>
+  </section>
+
+  <header inert>
+    <h1><img src="your-logo.png" alt="" onerror="this.style.display='none'"><span>Picanine</span></h1>
+    
+    <div class="header-nav">
+      <a href="history.php" class="btn-nav"><i class="fa-solid fa-clock-rotate-left"></i> <span>ประวัติรูปภาพ</span></a>
+      <a href="logout.php" class="btn-nav logout"><i class="fa-solid fa-right-from-bracket"></i> <span>ออกจากระบบ</span></a>
+    </div>
+  </header>
+
+  <div class="container" inert>
+    <div class="card">
+      <div class="card-title">
+        <span><i class="fa-solid fa-video"></i> กล้องประมวลผลด้วยนิวเมอเรียลไทม์</span>
+        <span id="fpsDisplay" class="fps-pill">FPS: --</span>
+      </div>
+
+      <video id="hiddenVideo" autoplay playsinline muted></video>
+
+      <div class="camera-wrapper">
+        <canvas id="previewCanvas" width="480" height="360"></canvas>
+        <div id="flash" class="flash-overlay"></div>
+        <div id="countdown" class="countdown-overlay">3</div>
+      </div>
+
+      <div class="controls-group">
+        <label class="control-label"><i class="fa-solid fa-table-cells-large"></i> จำนวนภาพในแถบโฟโต้บูท</label>
+        <div class="btn-grid two" id="photoCountGrid">
+          <button class="btn-option active" onclick="setPhotoCount(3, this)">3 ภาพ</button>
+          <button class="btn-option" onclick="setPhotoCount(4, this)">4 ภาพ</button>
+        </div>
+      </div>
+
+      <button id="shootBtn" class="btn-shoot" onclick="startPhotoSequence()">
+        <i class="fa-solid fa-camera"></i> <span id="shootLabel">เริ่มถ่ายรูปอัตโนมัติ (3 ช็อต)</span>
+      </button>
+
+      <div class="captured-thumbs" id="capturedThumbs">
+        <div class="thumb-slot" id="thumb-0">รูปที่ 1</div>
+        <div class="thumb-slot" id="thumb-1">รูปที่ 2</div>
+        <div class="thumb-slot" id="thumb-2">รูปที่ 3</div>
+        <div class="thumb-slot" id="thumb-3" hidden>รูปที่ 4</div>
+      </div>
+
+      <div class="controls-group">
+        <label class="control-label"><i class="fa-solid fa-border-all"></i> เลือกกรอบโฟโต้บูท (600×1800 px)</label>
+        <div class="btn-grid">
+          <button class="btn-option active" onclick="selectFrame('white', this)">White</button>
+          <button class="btn-option" onclick="selectFrame('black', this)">Black</button>
+          <button class="btn-option" onclick="selectFrame('bambob', this)">Bamboo</button>
+          <button class="btn-option" onclick="selectFrame('pinkcoco', this)">Pinkcoco</button>
+          <button class="btn-option" onclick="selectFrame('polkadot', this)">Polkadot</button>
+          <button class="btn-option" onclick="selectFrame('reddevil', this)"><i class="fa-solid fa-fire" style="color: #ef4444;"></i> Reddevil</button>
+        </div>
+      </div>
+
+      <div class="controls-group">
+        <label class="control-label"><i class="fa-solid fa-calculator"></i> เลือกฟิลเตอร์นิวเมอ (Handwritten Numer)</label>
+        <div class="btn-grid">
+          <button class="btn-option active" onclick="setFilter('normal', this)">ปกติ</button>
+          <button class="btn-option" onclick="setFilter('grayscale', this)">ขาวดำ (Matrix)</button>
+          <button class="btn-option" onclick="setFilter('sepia', this)">ซีเปีย (Matrix)</button>
+          <button class="btn-option" onclick="setFilter('sharpen', this)">เพิ่มคม (Conv)</button>
+          <button class="btn-option" onclick="setFilter('edge', this)">หาขอบ (Deriv)</button>
+          <button class="btn-option" onclick="setFilter('blur', this)">เบลอ (Integ)</button>
+        </div>
+      </div>
+
+      <div class="controls-group">
+        <div class="slider-wrapper">
+          <div class="slider-head">
+            <span><i class="fa-solid fa-sliders"></i> ความเข้มฟิลเตอร์ α (Linear Interpolation)</span>
+            <span id="sliderValText" class="slider-val">100%</span>
+          </div>
+          <input type="range" id="filterIntensity" min="0" max="100" value="100" oninput="updateIntensityText(this.value)">
+        </div>
+      </div>
+
+      <div class="numer-inspector">
+        <div class="numer-inspector-title">
+          <span><i class="fa-solid fa-code"></i> อัลกอริทึมนิวเมอที่กำลังทำงาน:</span>
+          <span id="numerTypeLabel">Direct Pass</span>
+        </div>
+        <div class="matrix-display" id="matrixCodeDisplay">R' = R, G' = G, B' = B (No transformation)</div>
+      </div>
+    </div>
+
+    <div class="card result-container">
+      <div class="card-title" style="width: 100%;">
+        <span><i class="fa-solid fa-image"></i> ตัวอย่างโฟโต้บูท (600×1800 px)</span>
+      </div>
+
+      <div class="strip-preview">
+        <canvas id="outputCanvas" width="600" height="1800"></canvas>
+      </div>
+
+      <div class="action-btn-group">
+        <button id="saveBtn" class="btn-save-db" onclick="saveImageToDB()" disabled>
+          <i class="fa-solid fa-cloud-arrow-up"></i> บันทึกลงประวัติ
+        </button>
+
+        <button id="downloadBtn" class="btn-download" onclick="downloadImage()" disabled>
+          <i class="fa-solid fa-download"></i> ดาวน์โหลดรูปภาพ
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let videoStream = null;
+    let capturedPhotosData = [];
+    let currentFilter = 'normal';
+    let currentFrameType = 'white';
+    let filterAlpha = 1.0;
+
+    const OUT_W = 600;
+    const OUT_H = 1800;
+
+    const FRAME_SLOTS_BY_COUNT = {
+      3: [
+        { x: 50, y: 100, w: 500, h: 375 },
+        { x: 50, y: 515, w: 500, h: 375 },
+        { x: 50, y: 930, w: 500, h: 375 }
+      ],
+      4: [
+        { x: 50, y: 100,  w: 500, h: 290 },
+        { x: 50, y: 420,  w: 500, h: 290 },
+        { x: 50, y: 740,  w: 500, h: 290 },
+        { x: 50, y: 1060, w: 500, h: 290 }
+      ]
+    };
+
+    let photoCount = 3;
+    let isShooting = false;
+
+    const loadedFrameImages = {
+      white: null, black: null, bambob: null, pinkcoco: null, polkadot: null, reddevil: null
+    };
+
+    function loadFrameImages() {
+      const frameFiles = {
+        white: 'white.png', black: 'black.png', bambob: 'bamboo.png',
+        pinkcoco: 'pinkcoco.png', polkadot: 'polkadot.png', reddevil: 'reddevil.png'
+      };
+
+      Object.keys(frameFiles).forEach(key => {
+        const img = new Image();
+        img.src = frameFiles[key];
+        img.onload = () => {
+          loadedFrameImages[key] = img;
+          if (key === currentFrameType) updateOutputCanvasPreview();
+        };
+        img.onerror = () => {
+          console.log(`ไม่พบไฟล์ ${frameFiles[key]} ระบบจะสร้างดีไซน์พื้นหลังสำรองให้โดยอัตโนมัติ`);
+        };
+      });
+    }
+
+    const video = document.getElementById('hiddenVideo');
+    const previewCanvas = document.getElementById('previewCanvas');
+    const previewCtx = previewCanvas.getContext('2d', { willReadFrequently: true });
+    
+    const outputCanvas = document.getElementById('outputCanvas');
+    const outputCtx = outputCanvas.getContext('2d');
+    
+    const countdownEl = document.getElementById('countdown');
+    const flashEl = document.getElementById('flash');
+    const shootBtn = document.getElementById('shootBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const matrixCodeDisplay = document.getElementById('matrixCodeDisplay');
+    const numerTypeLabel = document.getElementById('numerTypeLabel');
+
+    const PROC_W = 480;
+    const PROC_H = 360;
+
+    const procCanvas = document.createElement('canvas');
+    procCanvas.width = PROC_W;
+    procCanvas.height = PROC_H;
+    const procCtx = procCanvas.getContext('2d', { willReadFrequently: true });
+
+    function numerColorMatrixTransform(srcData, dstData, matrix) {
+      const src = srcData.data;
+      const dst = dstData.data;
+      const len = src.length;
+
+      const m00 = matrix[0], m01 = matrix[1], m02 = matrix[2];
+      const m10 = matrix[3], m11 = matrix[4], m12 = matrix[5];
+      const m20 = matrix[6], m21 = matrix[7], m22 = matrix[8];
+
+      for (let i = 0; i < len; i += 4) {
+        const r = src[i], g = src[i + 1], b = src[i + 2];
+        dst[i]     = Math.min(255, Math.max(0, r * m00 + g * m01 + b * m02));
+        dst[i + 1] = Math.min(255, Math.max(0, r * m10 + g * m11 + b * m12));
+        dst[i + 2] = Math.min(255, Math.max(0, r * m20 + g * m21 + b * m22));
+        dst[i + 3] = src[i + 3];
+      }
+    }
+
+    function numer2DConvolution(srcData, dstData, width, height, kernel) {
+      const src = srcData.data;
+      const dst = dstData.data;
+
+      const k0 = kernel[0], k1 = kernel[1], k2 = kernel[2];
+      const k3 = kernel[3], k4 = kernel[4], k5 = kernel[5];
+      const k6 = kernel[6], k7 = kernel[7], k8 = kernel[8];
+
+      for (let y = 1; y < height - 1; y++) {
+        for (let x = 1; x < width - 1; x++) {
+          const idx = (y * width + x) * 4;
+
+          const i00 = ((y - 1) * width + (x - 1)) * 4;
+          const i01 = ((y - 1) * width + x) * 4;
+          const i02 = ((y - 1) * width + (x + 1)) * 4;
+          const i10 = (y * width + (x - 1)) * 4;
+          const i11 = idx;
+          const i12 = (y * width + (x + 1)) * 4;
+          const i20 = ((y + 1) * width + (x - 1)) * 4;
+          const i21 = ((y + 1) * width + x) * 4;
+          const i22 = ((y + 1) * width + (x + 1)) * 4;
+
+          const rSum = src[i00]*k0 + src[i01]*k1 + src[i02]*k2 +
+                       src[i10]*k3 + src[i11]*k4 + src[i12]*k5 +
+                       src[i20]*k6 + src[i21]*k7 + src[i22]*k8;
+
+          const gSum = src[i00+1]*k0 + src[i01+1]*k1 + src[i02+1]*k2 +
+                       src[i10+1]*k3 + src[i11+1]*k4 + src[i12+1]*k5 +
+                       src[i20+1]*k6 + src[i21+1]*k7 + src[i22+1]*k8;
+
+          const bSum = src[i00+2]*k0 + src[i01+2]*k1 + src[i02+2]*k2 +
+                       src[i10+2]*k3 + src[i11+2]*k4 + src[i12+2]*k5 +
+                       src[i20+2]*k6 + src[i21+2]*k7 + src[i22+2]*k8;
+
+          dst[idx]     = Math.min(255, Math.max(0, rSum));
+          dst[idx + 1] = Math.min(255, Math.max(0, gSum));
+          dst[idx + 2] = Math.min(255, Math.max(0, bSum));
+          dst[idx + 3] = src[idx + 3];
+        }
+      }
+    }
+
+    function applyIntensityBlending(srcData, dstData, alpha) {
+      if (alpha >= 0.99) return;
+      const src = srcData.data;
+      const dst = dstData.data;
+      const invAlpha = 1 - alpha;
+
+      for (let i = 0; i < src.length; i += 4) {
+        dst[i]     = Math.round(dst[i] * alpha + src[i] * invAlpha);
+        dst[i + 1] = Math.round(dst[i + 1] * alpha + src[i + 1] * invAlpha);
+        dst[i + 2] = Math.round(dst[i + 2] * alpha + src[i + 2] * invAlpha);
+      }
+    }
+
+    function processFrameWithNumer(srcImageData) {
+      const dstImageData = procCtx.createImageData(PROC_W, PROC_H);
+
+      if (currentFilter === 'grayscale') {
+        const mat = [0.299, 0.587, 0.114, 0.299, 0.587, 0.114, 0.299, 0.587, 0.114];
+        numerColorMatrixTransform(srcImageData, dstImageData, mat);
+      } else if (currentFilter === 'sepia') {
+        const mat = [0.393, 0.769, 0.189, 0.349, 0.686, 0.168, 0.272, 0.534, 0.131];
+        numerColorMatrixTransform(srcImageData, dstImageData, mat);
+      } else if (currentFilter === 'sharpen') {
+        const kernel = [0, -1, 0, -1, 5, -1, 0, -1, 0];
+        numer2DConvolution(srcImageData, dstImageData, PROC_W, PROC_H, kernel);
+      } else if (currentFilter === 'edge') {
+        const kernel = [-1, -1, -1, -1, 8, -1, -1, -1, -1];
+        numer2DConvolution(srcImageData, dstImageData, PROC_W, PROC_H, kernel);
+      } else if (currentFilter === 'blur') {
+        const w = 1 / 9;
+        const kernel = [w, w, w, w, w, w, w, w, w];
+        numer2DConvolution(srcImageData, dstImageData, PROC_W, PROC_H, kernel);
+      } else {
+        dstImageData.data.set(srcImageData.data);
+        return dstImageData;
+      }
+
+      applyIntensityBlending(srcImageData, dstImageData, filterAlpha);
+      return dstImageData;
+    }
+
+    async function initCamera() {
+      try {
+        videoStream = await navigator.mediaDevices.getUserMedia({
+          video: { width: { ideal: 640 }, height: { ideal: 480 }, facingMode: 'user' },
+          audio: false
+        });
+        video.srcObject = videoStream;
+        video.play();
+        updateOutputCanvasPreview();
+        requestAnimationFrame(cameraRenderLoop);
+      } catch (err) {
+        alert('ไม่สามารถเปิดใช้งานกล้องได้ กรุณาอนุญาตการเข้าถึงกล้อง');
+        console.error("Camera Error:", err);
+      }
+    }
+
+    let lastFrameTime = performance.now();
+    function cameraRenderLoop() {
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        procCtx.save();
+        procCtx.translate(PROC_W, 0);
+        procCtx.scale(-1, 1);
+        const vw = video.videoWidth || PROC_W;
+        const vh = video.videoHeight || PROC_H;
+        const coverScale = Math.max(PROC_W / vw, PROC_H / vh);
+        const cropW = PROC_W / coverScale;
+        const cropH = PROC_H / coverScale;
+        procCtx.drawImage(video, (vw - cropW) / 2, (vh - cropH) / 2, cropW, cropH, 0, 0, PROC_W, PROC_H);
+        procCtx.restore();
+
+        const rawImageData = procCtx.getImageData(0, 0, PROC_W, PROC_H);
+        const processedImageData = processFrameWithNumer(rawImageData);
+        previewCtx.putImageData(processedImageData, 0, 0);
+
+        const now = performance.now();
+        const fps = Math.round(1000 / (now - lastFrameTime));
+        lastFrameTime = now;
+        document.getElementById('fpsDisplay').innerText = `FPS: ${fps}`;
+      }
+      requestAnimationFrame(cameraRenderLoop);
+    }
+
+    function updateIntensityText(val) {
+      filterAlpha = val / 100;
+      document.getElementById('sliderValText').innerText = `${val}%`;
+      updateMathInspector(currentFilter);
+    }
+
+    function setFilter(filterName, btnElement) {
+      currentFilter = filterName;
+      const filterBtns = btnElement.parentElement.querySelectorAll('.btn-option');
+      filterBtns.forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+      updateMathInspector(filterName);
+    }
+
+    function updateMathInspector(filterName) {
+      const alphaText = `Linear Blending: α = ${filterAlpha.toFixed(2)}`;
+      if (filterName === 'grayscale') {
+        numerTypeLabel.innerText = "Matrix Transformation + Linear Interpolation";
+        matrixCodeDisplay.innerText = `[R']   [0.299  0.587  0.114] [R]\n[G'] = [0.299  0.587  0.114] [G]\n[B']   [0.299  0.587  0.114] [B]\n(${alphaText})`;
+      } else if (filterName === 'sepia') {
+        numerTypeLabel.innerText = "Matrix Transformation + Linear Interpolation";
+        matrixCodeDisplay.innerText = `[R']   [0.393  0.769  0.189] [R]\n[G'] = [0.349  0.686  0.168] [G]\n[B']   [0.272  0.534  0.131] [B]\n(${alphaText})`;
+      } else if (filterName === 'sharpen') {
+        numerTypeLabel.innerText = "2D Convolution + Linear Interpolation";
+        matrixCodeDisplay.innerText = `Kernel K = [ 0, -1,  0 ]\n           [-1,  5, -1 ]\n           [ 0, -1,  0 ]\n(${alphaText})`;
+      } else if (filterName === 'edge') {
+        numerTypeLabel.innerText = "2D Convolution + Linear Interpolation";
+        matrixCodeDisplay.innerText = `Kernel K = [-1, -1, -1 ]\n           [-1,  8, -1 ]\n           [-1, -1, -1 ]\n(${alphaText})`;
+      } else if (filterName === 'blur') {
+        numerTypeLabel.innerText = "2D Convolution + Linear Interpolation";
+        matrixCodeDisplay.innerText = `Kernel K = 1/9 * [ 1,  1,  1 ]\n                 [ 1,  1,  1 ]\n                 [ 1,  1,  1 ]\n(${alphaText})`;
+      } else {
+        numerTypeLabel.innerText = "Direct Pass";
+        matrixCodeDisplay.innerText = "R' = R,  G' = G,  B' = B  (No Transformation)";
+      }
+    }
+
+    function selectFrame(frameType, btnElement) {
+      currentFrameType = frameType;
+      if (btnElement) {
+        const frameBtns = btnElement.parentElement.querySelectorAll('.btn-option');
+        frameBtns.forEach(b => b.classList.remove('active'));
+        btnElement.classList.add('active');
+      }
+      updateOutputCanvasPreview();
+    }
+
+    function drawCover(ctx, srcCanvas, x, y, w, h) {
+      const sw = srcCanvas.width, sh = srcCanvas.height;
+      const scale = Math.max(w / sw, h / sh);
+      const cw = w / scale, ch = h / scale;
+      ctx.drawImage(srcCanvas, (sw - cw) / 2, (sh - ch) / 2, cw, ch, x, y, w, h);
+    }
+
+    function drawFallbackBackground(theme) {
+      if (theme === 'black') {
+        outputCtx.fillStyle = '#0F172A'; outputCtx.fillRect(0, 0, OUT_W, OUT_H);
+        drawFooterText('#F8FAFC', '#64748B', 'BLACK EDITION');
+      } else if (theme === 'bambob') {
+        outputCtx.fillStyle = '#EFEBE7'; outputCtx.fillRect(0, 0, OUT_W, OUT_H);
+        outputCtx.fillStyle = '#D7CCC8'; outputCtx.fillRect(20, 20, OUT_W - 40, OUT_H - 40);
+        outputCtx.fillStyle = '#EFEBE7'; outputCtx.fillRect(30, 30, OUT_W - 60, OUT_H - 60);
+        drawFooterText('#5D4037', '#8D6E63', 'BAMBOB STUDIO');
+      } else if (theme === 'pinkcoco') {
+        outputCtx.fillStyle = '#FCE4EC'; outputCtx.fillRect(0, 0, OUT_W, OUT_H);
+        outputCtx.fillStyle = '#F8BBD0';
+        for (let i = 0; i < OUT_H; i += 60) outputCtx.fillRect(0, i, OUT_W, 20);
+        drawFooterText('#AD1457', '#EC407A', 'PINKCOCO SWEET');
+      } else if (theme === 'polkadot') {
+        outputCtx.fillStyle = '#E0F2FE'; outputCtx.fillRect(0, 0, OUT_W, OUT_H);
+        outputCtx.fillStyle = '#38BDF8';
+        for (let x = 30; x < OUT_W; x += 60) {
+          for (let y = 30; y < OUT_H; y += 60) {
+            outputCtx.beginPath(); outputCtx.arc(x, y, 12, 0, Math.PI * 2); outputCtx.fill();
+          }
+        }
+        drawFooterText('#0369A1', '#0284C7', 'POLKADOT VIBES');
+      } else if (theme === 'reddevil') {
+        outputCtx.fillStyle = '#7F1D1D'; outputCtx.fillRect(0, 0, OUT_W, OUT_H);
+        outputCtx.fillStyle = '#991B1B'; outputCtx.beginPath();
+        outputCtx.moveTo(0, 0); outputCtx.lineTo(OUT_W, OUT_H); outputCtx.lineTo(0, OUT_H); outputCtx.fill();
+        outputCtx.fillStyle = '#FACC15'; outputCtx.fillRect(0, 1360, OUT_W, 8); outputCtx.fillRect(0, 1375, OUT_W, 4);
+        drawFooterText('#FFFFFF', '#FACC15', 'RED DEVILS FC');
+      } else {
+        outputCtx.fillStyle = '#FFFFFF'; outputCtx.fillRect(0, 0, OUT_W, OUT_H);
+        drawFooterText('#0F172A', '#64748B', 'PHOTOBOOTH STUDIO');
+      }
+    }
+
+    function drawFooterText(titleColor, subColor, titleText) {
+      outputCtx.fillStyle = titleColor;
+      outputCtx.font = '600 36px "IBM Plex Sans Thai", sans-serif';
+      outputCtx.textAlign = 'center';
+      outputCtx.fillText(titleText, OUT_W / 2, 1460);
+
+      outputCtx.font = '300 24px "IBM Plex Sans Thai", sans-serif';
+      outputCtx.fillStyle = subColor;
+      const today = new Date().toLocaleDateString('th-TH', { year: 'numeric', month: 'short', day: 'numeric' });
+      outputCtx.fillText(today, OUT_W / 2, 1510);
+    }
+
+    function updateOutputCanvasPreview() {
+      outputCanvas.width = OUT_W;
+      outputCanvas.height = OUT_H;
+
+      const frameImg = loadedFrameImages[currentFrameType];
+      if (frameImg) {
+        outputCtx.drawImage(frameImg, 0, 0, OUT_W, OUT_H);
+      } else {
+        drawFallbackBackground(currentFrameType);
+      }
+
+      FRAME_SLOTS_BY_COUNT[photoCount].forEach((slot, idx) => {
+        outputCtx.save();
+        outputCtx.beginPath();
+        outputCtx.roundRect(slot.x, slot.y, slot.w, slot.h, 12);
+        outputCtx.clip();
+
+        if (capturedPhotosData[idx]) {
+          const tempCanvas = document.createElement('canvas');
+          tempCanvas.width = PROC_W;
+          tempCanvas.height = PROC_H;
+          tempCanvas.getContext('2d').putImageData(capturedPhotosData[idx], 0, 0);
+          drawCover(outputCtx, tempCanvas, slot.x, slot.y, slot.w, slot.h);
+        } else {
+          outputCtx.fillStyle = 'rgba(241, 245, 249, 0.85)';
+          outputCtx.fillRect(slot.x, slot.y, slot.w, slot.h);
+          outputCtx.lineWidth = 2;
+          outputCtx.strokeStyle = 'rgba(100, 116, 139, 0.3)';
+          outputCtx.strokeRect(slot.x + 2, slot.y + 2, slot.w - 4, slot.h - 4);
+          outputCtx.fillStyle = '#64748B';
+          outputCtx.font = '500 28px "IBM Plex Sans Thai", sans-serif';
+          outputCtx.textAlign = 'center';
+          outputCtx.fillText(`ช่องสำหรับรูปที่ ${idx + 1}`, slot.x + slot.w / 2, slot.y + slot.h / 2 + 10);
+        }
+        outputCtx.restore();
+      });
+
+      refreshDownloadBlob();
+    }
+
+    function setPhotoCount(n, btnElement) {
+      if (isShooting || n === photoCount) return;
+      photoCount = n;
+
+      btnElement.parentElement.querySelectorAll('.btn-option').forEach(b => b.classList.remove('active'));
+      btnElement.classList.add('active');
+
+      capturedPhotosData = [];
+      downloadBlob = null;
+      downloadBtn.disabled = true;
+      saveBtn.disabled = true;
+
+      document.getElementById('capturedThumbs').classList.toggle('four', n === 4);
+      for (let i = 0; i < 4; i++) {
+        const slot = document.getElementById(`thumb-${i}`);
+        slot.hidden = i >= n;
+        slot.innerHTML = `รูปที่ ${i + 1}`;
+      }
+      document.getElementById('shootLabel').innerText = `เริ่มถ่ายรูปอัตโนมัติ (${n} ช็อต)`;
+
+      updateOutputCanvasPreview();
+    }
+
+    async function startPhotoSequence() {
+      isShooting = true;
+      capturedPhotosData = [];
+      shootBtn.disabled = true;
+      downloadBtn.disabled = true;
+      saveBtn.disabled = true;
+
+      for (let i = 0; i < photoCount; i++) {
+        document.getElementById(`thumb-${i}`).innerHTML = `รูปที่ ${i + 1}`;
+      }
+
+      for (let i = 0; i < photoCount; i++) {
+        await runCountdown(3);
+        triggerFlash();
+
+        const currentData = previewCtx.getImageData(0, 0, PROC_W, PROC_H);
+        capturedPhotosData.push(currentData);
+
+        const thumbCanvas = document.createElement('canvas');
+        thumbCanvas.width = PROC_W;
+        thumbCanvas.height = PROC_H;
+        thumbCanvas.getContext('2d').putImageData(currentData, 0, 0);
+
+        const thumbSlot = document.getElementById(`thumb-${i}`);
+        thumbSlot.innerHTML = `<img src="${thumbCanvas.toDataURL()}">`;
+
+        updateOutputCanvasPreview();
+        await new Promise(r => setTimeout(r, 800));
+      }
+
+      isShooting = false;
+      shootBtn.disabled = false;
+      downloadBtn.disabled = false;
+      saveBtn.disabled = false;
+    }
+
+    function runCountdown(seconds) {
+      return new Promise((resolve) => {
+        let count = seconds;
+        countdownEl.innerText = count;
+        countdownEl.classList.add('countdown-active');
+
+        const timer = setInterval(() => {
+          count--;
+          if (count > 0) {
+            countdownEl.innerText = count;
+          } else {
+            clearInterval(timer);
+            countdownEl.classList.remove('countdown-active');
+            resolve();
+          }
+        }, 1000);
+      });
+    }
+
+    function triggerFlash() {
+      flashEl.classList.add('flash-active');
+      setTimeout(() => flashEl.classList.remove('flash-active'), 200);
+    }
+
+    let downloadBlob = null;
+
+    function refreshDownloadBlob() {
+      try {
+        outputCanvas.toBlob((blob) => { downloadBlob = blob; }, 'image/png');
+      } catch (err) {
+        downloadBlob = null;
+        console.error(err);
+      }
+    }
+
+    function isMobileDevice() {
+      return /Android|iPhone|iPad|iPod/i.test(navigator.userAgent) ||
+             (navigator.maxTouchPoints > 1 && /Mac/i.test(navigator.platform));
+    }
+
+    function showSaveOverlay(blob) {
+      const url = URL.createObjectURL(blob);
+      const overlay = document.createElement('div');
+      overlay.className = 'save-overlay';
+      overlay.innerHTML =
+        '<div class="save-sheet">' +
+          '<p>แตะค้างที่รูปภาพ แล้วเลือก “บันทึกรูปภาพ”</p>' +
+          '<img src="' + url + '" alt="Photobooth strip">' +
+          '<button type="button" class="btn-download">ปิด</button>' +
+        '</div>';
+      overlay.querySelector('button').onclick = () => {
+        overlay.remove();
+        URL.revokeObjectURL(url);
+      };
+      document.body.appendChild(overlay);
+    }
+
+    async function deliverBlob(blob) {
+      const filename = `photobooth-${currentFrameType}-${Date.now()}.png`;
+
+      if (isMobileDevice()) {
+        const file = new File([blob], filename, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({ files: [file], title: 'Picanine Photobooth' });
+            return;
+          } catch (err) {
+            if (err && err.name === 'AbortError') return;
+            console.error(err);
+          }
+        }
+        showSaveOverlay(blob);
+        return;
+      }
+
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 10000);
+    }
+
+    function downloadImage() {
+      if (downloadBlob) {
+        deliverBlob(downloadBlob);
+        return;
+      }
+      try {
+        outputCanvas.toBlob((blob) => {
+          if (blob) deliverBlob(blob);
+          else alert('ไม่สามารถสร้างไฟล์รูปภาพได้ กรุณาลองถ่ายใหม่อีกครั้ง');
+        }, 'image/png');
+      } catch (err) {
+        alert('เบราว์เซอร์ไม่อนุญาตให้บันทึกรูปนี้');
+        console.error(err);
+      }
+    }
+
+    async function saveImageToDB() {
+      if (!saveBtn) return;
+      saveBtn.disabled = true;
+      saveBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> กำลังบันทึก...';
+
+      try {
+        const imageData = outputCanvas.toDataURL('image/png');
+        const response = await fetch('api_save_photo.php', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            image_data: imageData,
+            frame_type: currentFrameType,
+            filter_type: currentFilter,
+            photo_count: photoCount
+          })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          alert('✅ บันทึกรูปภาพลงประวัติเรียบร้อยแล้ว!');
+        } else {
+          alert('❌ ' + (data.message || 'ไม่สามารถบันทึกได้ กรุณาล็อกอินก่อนใช้งาน'));
+          if (data.message && data.message.includes('เข้าสู่ระบบ')) {
+            window.location.href = 'login.php';
+          }
+        }
+      } catch (err) {
+        alert('❌ เกิดข้อผิดพลาดในการเชื่อมต่อกับเซิร์ฟเวอร์');
+        console.error(err);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> บันทึกลงประวัติ';
+      }
+    }
+
+    function enterSite() {
+      const landing = document.getElementById('landing');
+      if (landing.classList.contains('leaving')) return;
+
+      landing.classList.add('leaving');
+      document.body.classList.remove('landing-open');
+      document.body.classList.add('entered');
+      document.querySelectorAll('[inert]').forEach(el => el.removeAttribute('inert'));
+      setTimeout(() => { landing.hidden = true; }, 700);
+
+      initCamera();
+    }
+
+    window.addEventListener('load', () => {
+      loadFrameImages();
+      updateOutputCanvasPreview();
+      document.getElementById('enterBtn').focus();
+    });
+  </script>
+</body>
+</html>
